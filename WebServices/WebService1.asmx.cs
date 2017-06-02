@@ -52,6 +52,38 @@ namespace WebServices {
             }
 
         }
+        public void SendUserPass(string LoginUserId, string Pwd) {
+
+            //SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ToString());
+            SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ToString());
+            System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            con.Open();
+            using(SqlCommand cmd = new SqlCommand("SP_fetechrecord", con)) {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@LoginUser_ID", LoginUserId);
+                cmd.Parameters.AddWithValue("@LoginUser_Password", Pwd);
+                cmd.ExecuteNonQuery();
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                // Create an instance of DataSet.-
+                DataSet ds = new DataSet();
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                con.Close();
+
+                List<Dictionary<string, object>> rows = new List<Dictionary<string, object>>();
+                Dictionary<string, object> row = null;
+                foreach(DataRow rs in dt.Rows) {
+                    row = new Dictionary<string, object>();
+                    foreach(DataColumn col in dt.Columns) {
+                        row.Add(col.ColumnName, rs[col]);
+                    }
+                    rows.Add(row);
+                }
+
+                this.Context.Response.ContentType = "application/json; charset=utf-8";
+                this.Context.Response.Write(serializer.Serialize(new { rows }));
+            }
+        }
 
     }
 }

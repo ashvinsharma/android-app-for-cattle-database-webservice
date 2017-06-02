@@ -30,3 +30,4 @@ e:\documents\visual studio 2015\Projects\WebServices\WebServices\bin\Microsoft.A
 e:\documents\visual studio 2015\Projects\WebServices\WebServices\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml
 e:\documents\visual studio 2015\Projects\WebServices\WebServices\obj\Debug\WebServices.dll
 e:\documents\visual studio 2015\Projects\WebServices\WebServices\obj\Debug\WebServices.pdb
+E:\Documents\Visual Studio 2015\Projects\WebServices\WebServices\obj\Debug\WebServices.csprojResolveAssemblyReference.cache
