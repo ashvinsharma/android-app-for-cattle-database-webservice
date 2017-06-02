@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<parameters>
+  <parameter name="IIS Web Application Name" description="" value="ashvin14-001-site1" tags="IisApp">
+    <parameterEntry kind="ProviderPath" scope="IisApp" match="^e:\\documents\\visual\ studio\ 2015\\Projects\\WebServices\\WebServices\\obj\\Release\\Package\\PackageTmp$" />
+    <parameterEntry kind="ProviderPath" scope="setAcl" match="^e:\\documents\\visual\ studio\ 2015\\Projects\\WebServices\\WebServices\\obj\\Release\\Package\\PackageTmp$" />
+  </parameter>
+  <parameter name="ConnectionString-Web.config Connection String" description="" value="Data Source=sql6002.myasp.net;Initial Catalog=DB_A25EA8_PHRA;Persist Security Info=True;User ID=DB_A25EA8_PHRA_admin;Password=freewebsite123" tags="">
+    <parameterEntry kind="XmlFile" scope="e:\\documents\\visual\ studio\ 2015\\Projects\\WebServices\\WebServices\\obj\\Release\\Package\\PackageTmp\\web\.config$" match="/configuration/connectionStrings/add[@name='ConnectionString']/@connectionString" />
+  </parameter>
+</parameters>
