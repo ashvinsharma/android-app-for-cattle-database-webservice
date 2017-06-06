@@ -21,7 +21,6 @@ namespace WebServices {
         [WebMethod]
         public void GetUserDetails() {
 
-            //SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ToString());
             SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ToString());
             System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
             con.Open();
@@ -52,19 +51,19 @@ namespace WebServices {
             }
 
         }
-        public void SendUserPass(string LoginUserId, string Pwd) {
+        [WebMethod]
+        public void Authenticate(string LoginUserId, string Pwd) {
 
-            //SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ToString());
             SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ToString());
             System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
             con.Open();
-            using(SqlCommand cmd = new SqlCommand("SP_fetechrecord", con)) {
+            using(SqlCommand cmd = new SqlCommand("sp_AuthenticateLogins", con)) {
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@LoginUser_ID", LoginUserId);
-                cmd.Parameters.AddWithValue("@LoginUser_Password", Pwd);
+                cmd.Parameters.AddWithValue("@loginname", LoginUserId);
+                //cmd.Parameters.AddWithValue("@LoginUser_Password", Pwd);
                 cmd.ExecuteNonQuery();
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
-                // Create an instance of DataSet.-
+                // Create an instance of DataSet.
                 DataSet ds = new DataSet();
                 DataTable dt = new DataTable();
                 da.Fill(dt);
@@ -80,10 +79,22 @@ namespace WebServices {
                     rows.Add(row);
                 }
 
-                this.Context.Response.ContentType = "application/json; charset=utf-8";
-                this.Context.Response.Write(serializer.Serialize(new { rows }));
+                //Authentication Process--
+                string usernameDB = (string)rows[0]["LoginUser_Name"];
+                string hashKeyDB = (string)rows[0]["UserPassword"];
+                if(usernameDB.Equals(LoginUserId)) {
+                    if(Pwd.Equals(hashKeyDB)) {
+                        this.Context.Response.Write(true);
+                    } else {
+                        this.Context.Response.Write("Wrong Password!");
+                    }
+                } else {
+                    this.Context.Response.Write("Wrong Username!");
+                }
+
+                // this.Context.Response.ContentType = "application/json; charset=utf-8";
+                // this.Context.Response.Write(serializer.Serialize(new { rows }));
             }
         }
-
     }
 }
