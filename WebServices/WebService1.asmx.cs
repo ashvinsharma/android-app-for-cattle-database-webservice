@@ -57,10 +57,9 @@ namespace WebServices {
             SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ToString());
             System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
             con.Open();
-            using(SqlCommand cmd = new SqlCommand("sp_AuthenticateLogins", con)) {
+            using(SqlCommand cmd = new SqlCommand("SP_MobileAuthenticateLogin", con)) {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@loginname", LoginUserId);
-                //cmd.Parameters.AddWithValue("@LoginUser_Password", Pwd);
                 cmd.ExecuteNonQuery();
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
                 // Create an instance of DataSet.
@@ -84,16 +83,56 @@ namespace WebServices {
                 string hashKeyDB = (string)rows[0]["UserPassword"];
                 if(usernameDB.Equals(LoginUserId)) {
                     if(Pwd.Equals(hashKeyDB)) {
-                        this.Context.Response.Write(true);
+                        this.Context.Response.ContentType = "application/json; charset=utf-8";
+                        this.Context.Response.Write(serializer.Serialize(new { rows }));
+
                     } else {
-                        this.Context.Response.Write("Wrong Password!");
+                        this.Context.Response.Write("Authentication Failed!: Wrong Password!");
                     }
                 } else {
-                    this.Context.Response.Write("Wrong Username!");
+                    this.Context.Response.Write("Authentication Failed!: Wrong Username!");
                 }
 
-                // this.Context.Response.ContentType = "application/json; charset=utf-8";
-                // this.Context.Response.Write(serializer.Serialize(new { rows }));
+            }
+        }
+        [WebMethod]
+        public void CompleteSpinners(int area, int stateID, int districtID, int blockID, int centreID) {
+            SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ToString());
+            System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            con.Open();
+
+            string procedure = null;
+            //area = 1 is rural
+            if(area == 1) {
+                procedure = "SP_FetchVillege";
+            } else if(area == 2) { //area = 2 is urban
+                procedure = "SP_FetchTown";
+            }
+            using(SqlCommand cmd = new SqlCommand(procedure, con)){
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@State_ID", stateID);
+                cmd.Parameters.AddWithValue("@District_ID", districtID);
+                cmd.Parameters.AddWithValue("@Block_ID", blockID);
+                cmd.Parameters.AddWithValue("@Centre_ID", centreID);
+                cmd.ExecuteNonQuery();
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                DataSet ds = new DataSet();
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                con.Close();
+
+                List<Dictionary<string, object>> rows = new List<Dictionary<string, object>>();
+                Dictionary<string, object> row = null;
+                foreach(DataRow rs in dt.Rows) {
+                    row = new Dictionary<string, object>();
+                    foreach(DataColumn col in dt.Columns) {
+                        row.Add(col.ColumnName, rs[col]);
+                    }
+                    rows.Add(row);
+                }
+
+                this.Context.Response.ContentType = "application/json; charset=utf-8";
+                this.Context.Response.Write(serializer.Serialize(new { rows }));
             }
         }
     }
