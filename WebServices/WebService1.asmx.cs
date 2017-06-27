@@ -96,7 +96,7 @@ namespace WebServices {
             }
         }
         [WebMethod]
-        public void CompleteSpinners(int area, int stateID, int districtID, int blockID, int centreID) {
+        public void CompleteSpinnersTownVillage(int area, int stateID, int districtID, int blockID, int centreID) {
             SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ToString());
             System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
             con.Open();
