@@ -108,7 +108,7 @@ namespace WebServices {
             } else if(area == 2) { //area = 2 is urban
                 procedure = "SP_FetchTown";
             }
-            using(SqlCommand cmd = new SqlCommand(procedure, con)){
+            using(SqlCommand cmd = new SqlCommand(procedure, con)) {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@State_ID", stateID);
                 cmd.Parameters.AddWithValue("@District_ID", districtID);
@@ -116,7 +116,6 @@ namespace WebServices {
                 cmd.Parameters.AddWithValue("@Centre_ID", centreID);
                 cmd.ExecuteNonQuery();
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
-                DataSet ds = new DataSet();
                 DataTable dt = new DataTable();
                 da.Fill(dt);
                 con.Close();
@@ -132,6 +131,37 @@ namespace WebServices {
                 }
 
                 this.Context.Response.ContentType = "application/json; charset=utf-8";
+                this.Context.Response.Write(serializer.Serialize(new { rows }));
+            }
+        }
+        [WebMethod]
+        public void CompleteSpinnersBreed(int stateID, int species) {
+            SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ToString());
+            System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            con.Open();
+
+            using(SqlCommand cmd = new SqlCommand("SP_FetchBreeds", con)) {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@State_ID", stateID);
+                cmd.Parameters.AddWithValue("@Species_ID", species);
+                cmd.ExecuteNonQuery();
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+
+                da.Fill(dt);
+                con.Close();
+
+                List<Dictionary<string, object>> rows = new List<Dictionary<string, object>>();
+                Dictionary<string, object> row = null;
+                foreach(DataRow rs in dt.Rows) {
+                    row = new Dictionary<string, object>();
+                    foreach(DataColumn col in dt.Columns) {
+                        row.Add(col.ColumnName, rs[col]);
+                    }
+                    rows.Add(row);
+                }
+
+                this.Context.Response.ContentType = "Application / json; charset=utf-8";
                 this.Context.Response.Write(serializer.Serialize(new { rows }));
             }
         }
